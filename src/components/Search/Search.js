@@ -10,6 +10,7 @@ const Search = props => {
   return (
     <React.Fragment>
       <div className="search">
+        {/*TODO 注册app进行查找*/}
         {algolia &&
           algolia.appId && (
             <InstantSearch
