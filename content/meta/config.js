@@ -1,23 +1,23 @@
 module.exports = {
-  siteTitle: "HeroBlog - a GatsbyJS starter", // <title>
-  shortSiteTitle: "HeroBlog - GatsbyJS starter", // <title> ending for posts and pages
-  siteDescription: "HeroBlog is a GatsbyJS starter.",
+  siteTitle: "Bo Blog", // <title>
+  shortSiteTitle: "Bo Blog", // <title> ending for posts and pages
+  siteDescription: "Bo Blog is zyb's personal blog",
   siteUrl: "https://gatsby-starter-hero-blog.greglobinski.com",
   // pathPrefix: "",
   siteImage: "preview.jpg",
   siteLanguage: "en",
 
   /* author */
-  authorName: "greg lobinski",
-  authorTwitterAccount: "greglobinski",
+  authorName: "YiBo Zhang",
+  authorTwitterAccount: "YiBo Zhang",
 
   /* info */
   headerTitle: "YiBo Zhang",
   headerSubTitle: "Building a blog ...",
 
   /* manifest.json */
-  manifestName: "HeroBlog - a GatsbyJS starter",
-  manifestShortName: "HeroBlog", // max 12 characters
+  manifestName: "Bo Blog",
+  manifestShortName: "Bo Blog", // max 12 characters
   manifestStartUrl: "/index.html",
   manifestBackgroundColor: "white",
   manifestThemeColor: "#666",
@@ -32,8 +32,8 @@ module.exports = {
 
   // social
   authorSocialLinks: [
-    { name: "github", url: "https://github.com/greglobinski" },
-    { name: "twitter", url: "https://twitter.com/greglobinski" },
-    { name: "facebook", url: "http://facebook.com/greglobinski" }
+    { name: "github", url: "https://github.com/zybzzz" }
+    // { name: "twitter", url: "https://twitter.com/greglobinski" },
+    // { name: "facebook", url: "http://facebook.com/greglobinski" }
   ]
 };

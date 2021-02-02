@@ -219,3 +219,28 @@ export const postQuery = graphql`
 `;
 
 */
+
+// 导航栏带文章的query
+// query LayoutQuery {
+//   pages: allMarkdownRemark(
+//     filter: { fileAbsolutePath: { regex: "//pages//" }, fields: { prefix: { regex: "/^\d+$/" } } }
+//   sort: { fields: [fields___prefix], order: ASC }
+// ) {
+//     edges {
+//       node {
+//         fields {
+//           slug
+//           prefix
+//         }
+//         frontmatter {
+//           title
+//           menuTitle
+//         }
+//       }
+//     }
+//   }
+//   footnote: markdownRemark(fileAbsolutePath: { regex: "/footnote/" }) {
+//     id
+//     html
+//   }
+// }
