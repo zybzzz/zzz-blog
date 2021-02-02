@@ -57,6 +57,7 @@ module.exports = {
       }
     },
     {
+      //TODO 参考gatsby插件 在build步骤直接上传索引
       resolve: `gatsby-plugin-algolia`,
       options: {
         appId: process.env.ALGOLIA_APP_ID ? process.env.ALGOLIA_APP_ID : "",
