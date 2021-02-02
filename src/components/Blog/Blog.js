@@ -4,13 +4,25 @@ import React from "react";
 import Item from "./Item";
 
 const Blog = props => {
-  const { posts, theme } = props;
+  const { posts, theme, pageNum, pageSize} = props;
+
+  let sliPosts;
+  let start = (pageNum - 1) * pageSize;
+  console.log(start);
+  console.log(start + pageSize);
+  console.log(posts.length)
+  if (start + pageSize > posts.length){
+    sliPosts = posts.slice(start);
+  }else {
+    sliPosts = posts.slice(start, start + pageSize );
+  }
 
   return (
     <React.Fragment>
       <main className="main">
         <ul>
-          {posts.map(post => {
+          {
+            sliPosts.map(post => {
             const {
               node,
               node: {
@@ -54,7 +66,9 @@ const Blog = props => {
 
 Blog.propTypes = {
   posts: PropTypes.array.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
+  pageNum: PropTypes.number.isRequired,
+  pageSize: PropTypes.number.isRequired
 };
 
 export default Blog;

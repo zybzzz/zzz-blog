@@ -5,6 +5,10 @@ import { ThemeContext } from "../layouts";
 import Blog from "../components/Blog";
 import Hero from "../components/Hero";
 import Seo from "../components/Seo";
+import { Pagination } from "antd";
+import "antd/dist/antd.css";
+
+
 
 class IndexPage extends React.Component {
   separator = React.createRef();
@@ -12,6 +16,23 @@ class IndexPage extends React.Component {
   scrollToContent = e => {
     this.separator.current.scrollIntoView({ block: "start", behavior: "smooth" });
   };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentPageNum: 1,
+      //保留变更每页显示条数
+      currentPageSize: 5
+    };
+  }
+
+  changePage = (page, pageSize) => {
+    this.setState({
+      currentPageNum: page,
+      currentPageSize: pageSize
+    });
+    this.scrollToContent();
+  }
 
   render() {
     const {
@@ -46,15 +67,18 @@ class IndexPage extends React.Component {
           )}
         </ThemeContext.Consumer>
 
-        <hr ref={this.separator} />
+        <hr id={"locationHr"} ref={this.separator} />
 
         <ThemeContext.Consumer>
-          {theme => <Blog posts={posts} theme={theme} />}
+          {theme => <Blog posts={posts} theme={theme} pageNum={this.state.currentPageNum} pageSize={this.state.currentPageSize}/>}
         </ThemeContext.Consumer>
 
+        <Pagination style={{textAlign: 'center' , marginBottom: '30px'}}
+                    defaultCurrent={this.state.currentPageNum} defaultPageSize={this.state.currentPageSize} total={posts.length} onChange={this.changePage}></Pagination>
         <Seo facebook={facebook} />
 
         <style jsx>{`
+
           hr {
             margin: 0;
             border: 0;
