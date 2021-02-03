@@ -4,7 +4,7 @@ menuTitle: About ...
 ---
 
 ### Personal web
-If you want to know me more, you can access my personal web --- [zzz-personal-web]( TODO ).
+If you want to know me more, you can access my personal web --- [zzz-personal-web](https://www.yibozhang.site).
 
 ### Built process
 A new experience about gatsby and react ... So challenging and attrective (Just for me).
