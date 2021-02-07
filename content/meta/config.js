@@ -2,7 +2,7 @@ module.exports = {
   siteTitle: "Bo Blog", // <title>
   shortSiteTitle: "Bo Blog", // <title> ending for posts and pages
   siteDescription: "Bo Blog is zyb's personal blog",
-  siteUrl: "https://gatsby-starter-hero-blog.greglobinski.com",
+  siteUrl: "https://www.zybzzzblog.com",
   // pathPrefix: "",
   siteImage: "preview.jpg",
   siteLanguage: "en",

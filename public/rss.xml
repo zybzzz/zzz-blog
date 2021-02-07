@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Bo Blog]]></title><description><![CDATA[Bo Blog is zyb's personal blog]]></description><link>https://www.zybzzzblog.com</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 07 Feb 2021 02:15:37 GMT</lastBuildDate><item><title><![CDATA[计算机网络：数据链路层]]></title><description><![CDATA[…]]></description><link>https://www.zybzzzblog.com/计算机网络-数据链路层/第三章：数据链路层/</link><guid isPermaLink="false">https://www.zybzzzblog.com/计算机网络-数据链路层/第三章：数据链路层/</guid><pubDate>Wed, 03 Feb 2021 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;来自课本的知识点整理，计算机网络数据链路层。&lt;/p&gt;
+&lt;h1&gt;第三章：数据链路层&lt;/h1&gt;
+&lt;h2&gt;前言&lt;/h2&gt;
+&lt;p&gt;数据链路层使用的信道主要有以下两种类型：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;点对点的信道。这种信道使用一对一点对点的方式。&lt;/li&gt;
+&lt;li&gt;广播信道。这种信道使用一对多的广播通信方式，因此过程是比较复杂的。广播信道上的连接主机很多，因此必须使用专用的共享信道协议来协调这些主机的数据发送，即用协议来解决冲突。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;3.1 使用点对点信道的数据链路层&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3&gt;数据链路和帧&lt;/h3&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;  首先清楚的是概念，“链路”和“数据链路”是两个不同的概念，“链路”指的是一个节点到另一个节点的一段物理路线，而“数据链路”&lt;strong&gt;则是将实现传输协议的硬件和软件加到链路上构成的。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;  点对点信道的数据链路层的协议数据单元称作帧。&lt;/p&gt;
+&lt;p&gt;  点对点信道的数据链路层在进行通信时的主要步骤：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;将网络层交下来的IP数据报添加首部尾部封装成数据帧。（封装成帧）&lt;/li&gt;
+&lt;li&gt;把装好的帧发送到下一个节点。（透明传输）&lt;/li&gt;
+&lt;li&gt;收到帧的结点进行查错。（差错检测）&lt;/li&gt;
+&lt;li&gt;
+&lt;h3&gt;三个基本问题&lt;/h3&gt;
+&lt;p&gt;无论是任何的协议都面临着封装成帧、透明传输、差错检测的问题。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;h4&gt;封装成帧&lt;/h4&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt; 将网络层交下来的数据添加首部和尾部，收到该帧的结点就能根据首部和尾部判断帧的开始和结束。每个帧的数据部分不超过MTU个长度，MTU不宜过大也不宜过小，太小会导致效率的浪费，太大则会被拒绝发送，或许可以理解为一旦丢失出错重传的数据将会非常多。&lt;/p&gt;
+&lt;p&gt; 当数据是ASCII组成的文本文件时，帧定界可以使用特殊的帧定界符。可以在帧的首尾部分别加入SOH、EOT控制字符，这样接收端便能明确的判断帧的各种情况，并且做出相应的处理。&lt;/p&gt;
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;
+&lt;h4&gt;透明传输&lt;/h4&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;  “透明”即某一个实际存在的事物看起来却像不存在一样。在传输时，如果传输的是ascii文本文件，那么它的数据部分就一定不会出现SOH、EOT这样的帧定界控制字符。但是在传输二进制文件时，难免会有二进制码与帧界定标志二进制码相同的情况出现，这样就会引起接收端的错误判断，一般采取的方法是在&lt;strong&gt;数据中出现“SOH”、“EOT”&lt;/strong&gt;的前面加上转义字符，接收端收到以后再将转移字符拿掉。对于数据来说，数据是看不见数据链路层有什么阻碍它传输的东西的，因此数据链路层对于数据来说是透明的。透明传输可以理解为，对于传送的数据没有任何的限制；与之相对，非透明传输对传输数据的要求是有限制的。简而言之，透明传输就是啥都可以传。&lt;/p&gt;
+&lt;ol start=&quot;3&quot;&gt;
+&lt;li&gt;
+&lt;h4&gt;差错检验&lt;/h4&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;  现实的通讯链路不是理想的，难免在传输数据时会有比特出现错误，这叫做比特差错。为了避免出现数据差错，在传输数据时会采用差错检验的机制，目前广泛采用的是&lt;strong&gt;CRC技术（必考）&lt;/strong&gt;，见书本P75，在接收端收到的每一帧经过CRC检验之后，如果余数为0，那么就接受帧，如果余数不为0，那么就丢弃帧。&lt;/p&gt;
+&lt;p&gt;  OSI的观点是必须让数据链路层向上提供可靠传输，显然使用CRC只保证了比特不出错，仍然有传输出错的可能，如帧重复，帧失序等等。因此数据链路层在基础上又增加了&lt;strong&gt;帧编号、确认、重传&lt;/strong&gt;的机制，这就保证了可靠性。&lt;/p&gt;
+&lt;p&gt;  对于通信质量良好的有线传输链路，数据链路层协议不启用确认和重传机制；对于差的传输链路，开启确认和重传机制。实践证明这是可以提高通讯效率的。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;3.2 点对点协议PPP（Point to Point Protocol）&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3&gt;协议的特点&lt;/h3&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;  PPP协议就是用户计算机和ISP进行通信时，数据链路层的协议。&lt;/p&gt;
+&lt;p&gt;  设计PPP协议的时候考虑了以下的需求：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;简单，把最复杂的部分放在TCP协议中，IP协议相对简单，因此数据链路层没有必要实现比IP更多的功能，因此传输是不可靠的。&lt;/li&gt;
+&lt;li&gt;封装成帧。&lt;/li&gt;
+&lt;li&gt;透明传输，透明传输意味着要解决数据传输透明性的问题，见前面透明性的讲解。&lt;/li&gt;
+&lt;li&gt;多种网络层协议，适用于多种场景，无论连接的是局域网还是路由器。&lt;/li&gt;
+&lt;li&gt;多种类型的链路。&lt;/li&gt;
+&lt;li&gt;差错检测，丢弃差错的帧，以免浪费后面的网络资源。&lt;/li&gt;
+&lt;li&gt;检测连接状态。&lt;/li&gt;
+&lt;li&gt;最大传输单元。&lt;/li&gt;
+&lt;li&gt;网络层地址协商。&lt;/li&gt;
+&lt;li&gt;数据压缩协商。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;  &lt;strong&gt;PPP不需要：1、纠错（简单特性）2、序号（简单特性）3、流量控制（简单特性）4、多点线路 5、半双工或单工链路（两点之间会有协商？）&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3&gt;协议的组成&lt;/h3&gt;
+&lt;p&gt;分为3个组成部分：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;数据部分，不超过MTU个长度。&lt;/li&gt;
+&lt;li&gt;用于建立、配置、测试数据链路连接的链路控制协议LCP。&lt;/li&gt;
+&lt;li&gt;一套网络控制协议NCP，其中每一个协议支持不同的网络层协议。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;h3&gt;PPP协议的帧格式&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;h4&gt;各个字段的意义&lt;/h4&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt; 这里主要注意标志字段使用16进制7E表示开始和结束。连续出现两个7E则表示是一个空帧。&lt;/p&gt;
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;
+&lt;h4&gt;透明传输相关&lt;/h4&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt; 字节填充：在异步传输时，为了避免字段出现和标志字段一样的组合，就会采取字节填充这样的方法。他的字节填充方法是将起始标志转换成两个转义字符，有冲突再转换，总之就是这样的一个过程。在接收端再用同样的方法转换回来。&lt;/p&gt;
+&lt;p&gt; 零比特填充：在使用一连串的比特传输时，PPP会采取零比特填充。凡是喷到5个1就会在后面添加一个0，因为7E（01111110）中中间有6个1，避免在数据中也有6个1，就在5个1出现的时候加0。接收端接收到之后去掉0即可。&lt;/p&gt;
+&lt;p&gt; &lt;strong&gt;通过上述两种方法就实现了透明传输&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;h3&gt;PPP协议的工作状态&lt;/h3&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/1c0d584178fbf67855fd93e11de9d549/08c33/1.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 44.49999999999999%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAACT0lEQVQoz02SSVOScRzHOfQSegm9hV5D5y7NdOxQM52ajh3qYuPI4GiNuSCS5V46orIIIvDAA7I8ueFC7oLKEqQsyQOofPo/Tk0d/sf/5/fddOfqDZGzOiHx1jPXxPZu8CZUJpUiltg5pqkiPf2/MLwvY12rsnzRpFeWaPdYabV9ZWwlTiwLSrZOpdFEt/GjgTdZI3hSR/89xwv3Bo9iCXTdZu4NzTC7fMmUv8xoRw7P5zzhuSLT3w4welboX1Sw72QInTbwHKtsFa7QxQXQJ4Dh0zoPDo+4szDH44MjXkd3aUmcMSGV6R0s0dmaxzZ7QVQcsCbTtFimMbjmcWcuCKYaSCkVTdytQilVw39cY8RTpmu8yIRcZS1YZdVawiKAHR8F0FDAPVYgLFewpXOYoquYwsu4kj+FO02UAOb/AP0nNXyHKiMzvzB9UjFNlnAoZRYiZYadAthTxvAqj2O+SDR8iTucoW8pxgefjDdT+QfUFGqWA8KyM9PgvtvJ3e53PNnYRsk3kXM1FrYvGZ2uMNiex7tYxreUp2vATqfDS7ccxBgIIYtCtdj+A6osphs8j2zxcMLJ20Sa8NkVoXQNR/wS41iRvi4B/HKO5Mhhjsbo9ccwK2sMK+vIIn/pL1DzfduyyDGeaRLZA/9WjflNYW23yrBL5NpXQa8v4pBq2PdPeGnv4am5jWeDbbyRx/HnVCTRgSZOVxA71DYYEDlKWpbJKl4xgUCqLoAlBhwKnaMuWoxT6IdmcRzksJ1msewcM7m5jz2VFX9V/EJQunLNb3S5XXWhYP+gAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;1&quot; title=&quot;&quot; src=&quot;/static/1c0d584178fbf67855fd93e11de9d549/5a190/1.png&quot; srcset=&quot;/static/1c0d584178fbf67855fd93e11de9d549/772e8/1.png 200w,
+/static/1c0d584178fbf67855fd93e11de9d549/e17e5/1.png 400w,
+/static/1c0d584178fbf67855fd93e11de9d549/5a190/1.png 800w,
+/static/1c0d584178fbf67855fd93e11de9d549/c1b63/1.png 1200w,
+/static/1c0d584178fbf67855fd93e11de9d549/08c33/1.png 1570w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;  PPP协议的状态图如上，我觉得这本需要理解的是两点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;与ISP建立连接，通过向ISP传输LCP分组来初始化连接。&lt;/li&gt;
+&lt;li&gt;PPP协议适配不同的网络层协议，建立连接之后，还要进行网络层的配置，要根据NCP协议来配置。PPP协议两端的网络层可以使用不同的协议，但是仍然能使用PPP进行通信。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;3.3 使用广播信道的数据链路层&lt;/h2&gt;
+&lt;p&gt; 局域网使用的就是广播信道，所以使用局域网来讨论。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3&gt;局域网的数据链路层&lt;/h3&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;  局域网的主要优点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;具有广播功能，从一个站点很方便的可以访问全网。&lt;/li&gt;
+&lt;li&gt;随着系统的拓展和演变，各设备的位置可以灵活调整和改变。&lt;/li&gt;
+&lt;li&gt;提高了系统的可用性、可靠性、生存型。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;  共享信道要考虑的重要问题就是用户能够合理而方便的共享媒体资源。在技术上有两种方法：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;静态划分信道。用户只要分配到了信道就不会和其他用户产生冲突。&lt;/li&gt;
+&lt;li&gt;动态媒体接入控制，又称为“多点接入”。这又分为随机接入（可能产生冲突），受控接入（采用轮询的方式，一个个来）。&lt;/li&gt;
+&lt;li&gt;
+&lt;h4&gt;适配器的作用&lt;/h4&gt;
+&lt;p&gt;计算机与外界局域网的通信是通过适配器进行的。&lt;strong&gt;适配器和局域网之间的通信是通过电缆和双绞线以串行方式进行的，适配器和计算机之间的通信则是通过I/O总线以并行的方式进行的。在网络上的数据率和计算机总线上的数据率大不相同，因此在适配器中装有对数据缓存的芯片。在主板上安装适配器时，在电脑上要同步安装驱动程序，这样以后驱动程序就会告诉适配器，从哪个位置取数据传输，或是将得到的数据放在哪个位置。适配器在接受和发送帧时，不使用计算机的CPU，这意味着CPU能做别的任务。适配器在收到正确的帧的时候产生中断通知计算机，并交付至网络层。发送IP数据报的时候，将数据报交给适配器组装成帧再发送到局域网。&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;h3&gt;CSMA/CD协议&lt;/h3&gt;
+&lt;p&gt;为了通信简便，以太网采取了以下的两种措施：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;采用无连接的工作方式，&lt;strong&gt;对数据帧不进行编号，也不要求对方确认返回，就是尽最大的努力交付，是不可靠的交互。&lt;/strong&gt;对于差错帧的重传由上层来决定。当有一台计算机在发送数据的时候，总线的传输资源就被占用，因此同一时间只能有一台计算机来发送数据，这里面就会有冲突的问题，解决冲突问题需要协议CSMA/CD。&lt;/li&gt;
+&lt;li&gt;以太网发送的数据都使用曼彻斯特编码的信号。简而言之接收端需要检测位同步信号，检测需要获取到数据上的边沿跳变，如果长时间的传输0或1，边沿无法跳变，无法获取到同步信号，因此需要采用曼彻斯特编码。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;CSMA/CD协议的实质是“载波监听”（不管是在发送前还是在发送中，每个站都必须不停的检测信道）和“碰撞检测”（边发送边监听）。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/cded14136e12e23ab5552d1f657845d8/6bfbb/2.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 31.5%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAGCAYAAADDl76dAAAACXBIWXMAABYlAAAWJQFJUiTwAAABhUlEQVQY002RTU8aURSGSfwDLvo3XPRHuDHddmVium5X2oVN2iZduTKmGxOTpqkbYxqFkpBBrJkSHAaEUnUcVGKZwjAiOAO0Eu18sHh6B5R0cfKem3vOc983N1Jq+WQaHorlsy9UNm6QdJt4ySFZFv2RzW76mB2tzbd8n6/ZazZrv3mmd3gqW7w676FeekPG4XVAJCsO+9YImDH/kjoTC8pP1qIOq9td1uJd1uUOn77Y5GZrZBcqLJ/UmSlavNips6Q7DBmNETSiXvpD4AM01M/qOYWrgJzho/xwSaVdpOQt2x96vF9pECuYyGcGqtHmwLwd7ynWGBjGdkloTaRyiy3hMC7b5It91MM+R+U75ioOEx91HksXSFrAy7c+8288Esc+amvkcAhU7t2FlRF1IOBR645HSp3JWJXnlQ6aPeCd8YcnKZPF721Spx4bcsCW6iNXBej/yJoTjOzeR88LYKLpMp38xdSeyWurT1EMFsR9CC61BuSuPIod8bjtkW3648jhB/8DnYWa/pkzw4gAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;2&quot; title=&quot;&quot; src=&quot;/static/cded14136e12e23ab5552d1f657845d8/5a190/2.png&quot; srcset=&quot;/static/cded14136e12e23ab5552d1f657845d8/772e8/2.png 200w,
+/static/cded14136e12e23ab5552d1f657845d8/e17e5/2.png 400w,
+/static/cded14136e12e23ab5552d1f657845d8/5a190/2.png 800w,
+/static/cded14136e12e23ab5552d1f657845d8/c1b63/2.png 1200w,
+/static/cded14136e12e23ab5552d1f657845d8/6bfbb/2.png 1514w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;从图中就可以看出A发现冲突的最长时间是2$\tau$时间。也可以看出使用CSMA/CD协议时，一个站不能同时进行发送和接收，因此使用该协议的以太网不能进行全双工通信，只能进行双向交替通信。对于A站，至多2$\tau$之后就能发现有没有冲突产生，把这段时间称为争用期。经过征用期还没发生碰撞，就表示这段时间不会发生碰撞。&lt;/p&gt;
+&lt;p&gt;以太网使用截断二进制指数避退算法来处理重传。发生冲突之后，为了避免冲突的再次发生，不是立即将数据再次传输，而是先等待一个随机数的时间再去传输，这个算法就是产生这个等待随机数的，具体见书本P88.&lt;/p&gt;
+&lt;p&gt;存在产生冲突时的情况，如果传送的帧数据过短，即使发生了碰撞，接收端收到了有差错的帧并且丢弃，发送端都无法察觉，因为实在是太短了，这样发送端就不知道需要重传，因此，规定了最短帧长是64字节，凡是长度小于64的字节都是由于冲突而异常终止的无效帧，收到了这种帧就立即丢弃。&lt;/p&gt;
+&lt;p&gt;在发生碰撞之后，除了立即停止发送数据之外，还要再发送人为干扰信号，以便让所有用户都知道发生了碰撞。&lt;/p&gt;
+&lt;p&gt;以太网还规定了帧最小间隔为96个比特时间，这段时间用于清理接受站的缓存，并给接受下一帧做准备。&lt;/p&gt;
+&lt;p&gt;CSMA/CD的协议要点归纳如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;准备发送：发送以太网帧之前先检查信道。&lt;/li&gt;
+&lt;li&gt;检测信道：检测到信道忙则等待至空闲，如果检测到信道空闲，且在96比特时间内仍然空闲，就发送出帧。&lt;/li&gt;
+&lt;li&gt;在发送过程中仍然检测信道，边发送边监听。没有发生碰撞就表示发送成功，产生了碰撞就执行回避算法，等待再次发送。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;以太网发送完一帧后，都会将帧暂时保留，以免发生碰撞，进行重传的时候使用。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</content:encoded></item><item><title><![CDATA[计算机网络：网络层]]></title><description><![CDATA[来自课本的知识点整理，计算机网络网络层。 第四章：网络层 4.…]]></description><link>https://www.zybzzzblog.com/计算机网络-网络层/第四章：网络层/</link><guid isPermaLink="false">https://www.zybzzzblog.com/计算机网络-网络层/第四章：网络层/</guid><pubDate>Tue, 02 Feb 2021 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;来自课本的知识点整理，计算机网络网络层。&lt;/p&gt;
+&lt;h1&gt;第四章：网络层&lt;/h1&gt;
+&lt;h2&gt;4.1网络层提供的两种服务&lt;/h2&gt;
+&lt;p&gt;网络层应该提供怎样的服务？是面向连接的还是无连接的，这引起了长期的争论，但是争论焦点的实质是：在计算机网络的通信中，可靠的交付应该由谁来负责，是网络还是端系统。有人认为该借鉴电信网的成功方式，通过面向连接的方式，在连接之前先建立一条虚电路，在通讯中运用这个电路通信，虽然安全、信息不会丢失，但是显而易见的是，这样的连接很复杂，且速度可能相对偏慢。&lt;/p&gt;
+&lt;p&gt;于是互联网的先驱们采取了崭新的互联网设计思路，核心思想是计算机比电话聪明，足以有应对差错的能力，因此，有了网络层向上只提供简单灵活的、无连接的、尽最大努力交付的数据报服务。&lt;strong&gt;每一个分组独立发送，前后分组无关，不编号，可能出错丢失重复，也不保证交付的时限&lt;/strong&gt;，这样网络的造价大大降低，运行方式灵活，能够适应多种应用。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/b5d48ed4e2559d23776333c5cb8d85c4/a01dc/1.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 45.49999999999999%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAACjklEQVQozx2Q20uTAQDFvwii/oBeqpdexQiCeoie7CkiLLUXoQsRFARCWmCFWqZz5lIzs6WUojOXzjmd85vfbm5etnZp6ppuaytnUlk4nW4SZv1aHTicAwcOhyPIY2qy7dc5Zivm6NhNjk0WccZXQdOiltZFkftzb6iN9KNc0tO8qKMxrqXmUw9nfZVkm4s4Yi3muLOEwxM3uDnXitDclCY/f50Hsg1K72xyPi9FYV6Ci7lpbl9L09KwQU15iivnNrmSn9GCdS5l/NXCJPWKVerkq1woWCP/VBJZxSpC5Uicg9UB9tb72SNzsqPsLVdlY1RUS9S+mKSuTeKZyk3f6ApacwJZ4zglZXqqm8ZR9jh50m6nuWOWPjGBaeIbQlXIS45TIsuiQxh4xi5jGyWjbTyVlHTFRLo/jKJfnkK7ZEVKuhmMmOgNDmNOv8OY8CGueHD9CeEjSnDrE8Jdf5BDIzb26WwIr43s0li41aemRlnPc40K0TOONeBG77Rhj0xjCfvom5RQmQbpsRlQmQfxfv1A9NcK0WRmYal/iMPGeo5KdezWFLFTW8zlfgUVmmaq7F0ovBrkLjVyp5rWBQstYZE6Vy+KDGsc3TyaUtMSMfLihyOzdhbh3vQCWWKAHOt7Dgx5ETR+yrU6dOIAhgkLww4Tkncc88wUs1+i9EpDlD+WoTL0/8/FKRv+eAiDy8b85xjCw8AEuY5BTts1mUIF+w0NFEudPBnuoHG0G6VNQ2fQhHbZgz4xw0vvMA1iF698BtQzZlQeMfNlAAdx3BuZD9ujaa55kpwcWyNnLMUJaxq1a46P80FisY98X14mGo4QmQ/zbekLiwtxwqEw4fkQv7e3+YftrV9s/9xiM5XmL7qZH8rJy2syAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;1&quot; title=&quot;&quot; src=&quot;/static/b5d48ed4e2559d23776333c5cb8d85c4/5a190/1.png&quot; srcset=&quot;/static/b5d48ed4e2559d23776333c5cb8d85c4/772e8/1.png 200w,
+/static/b5d48ed4e2559d23776333c5cb8d85c4/e17e5/1.png 400w,
+/static/b5d48ed4e2559d23776333c5cb8d85c4/5a190/1.png 800w,
+/static/b5d48ed4e2559d23776333c5cb8d85c4/c1b63/1.png 1200w,
+/static/b5d48ed4e2559d23776333c5cb8d85c4/29007/1.png 1600w,
+/static/b5d48ed4e2559d23776333c5cb8d85c4/a01dc/1.png 2006w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;h2&gt;4.2网际协议IP&lt;/h2&gt;
+&lt;p&gt;与IP协议配套使用的还有三个协议：1、地址解析协议ARP 2、国际控制报文协议ICMP 3、国际组管理协议IGMP&lt;/p&gt;
+&lt;h3&gt;虚拟互联网络&lt;/h3&gt;
+&lt;p&gt;利用IP协议可以使性能特异的网络在网络层上看起来像统一的网络。（可以理解为隐藏差异）&lt;/p&gt;
+&lt;h3&gt;分类的IP地址&lt;/h3&gt;
+&lt;p&gt;分类的IP地址将网络分为若干个固定类，A、B、C类都由固定长度的字符串组成。&lt;strong&gt;第一个字段表示网络号，表示连接到的网络，他在整个互联网范围内是唯一的。第二个字段是用户号，标志着主机（路由器），主机号在网络号指明的范围中也是唯一的。&lt;/strong&gt;因此IP地址是惟一的。&lt;/p&gt;
+&lt;p&gt;A、B、C类地址的网络号字段最前面有1、2、3的类别位，分别是0、10、110。同时他们的主机号字段分贝是1个字节，两个字节，三个字节长。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/5ded81ea532b4554f365e1904a4b95de/06868/2.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 42%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAABYlAAAWJQFJUiTwAAACN0lEQVQozz2Q20uTARjGv7+grkqIoMugIqQDdREl1UUX4UWBByjDiy66SBO9iC6yLBAKsoO2gkqWzuahtJinlU43JpvTta0dHGo7fNun23Rzh3SbtF/fvOji4f3xPs8DL69g8od483kcRd8QbZ1qXnQN0q4aQDWhp71HQ7/RgkFaYcwbRCdndYEgk/4ii2gXg7LEHdYFRAxiGKG2PMOVM1Bakuf0gQJXzxa5wNE9We7XwbmDeU7uz/CwAS4eyXJoV47jJXBMVmUZVJ2HE/vg8O4CpXtTCG3NSVrqstRXZ2iq2drhxms5blekaLmzQdONTeqqMjxqSMh+luoLfi6f8lBR5uNW5TKNtWFqLoW4WZ6k8XoaIZATWcoHkFghQBBvZkmmVURCGH1mfH/9/zlEmK8W+SX9z1FP92BYNGIJWXFtOOW+RIQogmbVhjJspHdtHqXPQIdVg0oy8SlqQWEfobvIEZltw6hjc7ROqqjvfMLdgQ7uyXqsVdI89oEHU128/DWMICYiOEX5qs0Ese00Huk38cIm0p915hediKko4cw6swt2VrcS9I4O8U2vxbrsxuJ1YPN5MDrm0NvM8s6F8CVspsM9wntpmjavhlaTGkVwAmVshrfecbrWTHTH5YxzGJU8Fe5R3i394LVDw9MpFc9m+ng1N8hH0UBf0oqQWI8jBoPEIlFmTWZ6ulW4nS424gkWPAsU/XQyhcvpJJNKY/9pY2pSh2Faz3etFofNznY+T24ru9P5Bx6i/JQ1H/IHAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;2&quot; title=&quot;&quot; src=&quot;/static/5ded81ea532b4554f365e1904a4b95de/5a190/2.png&quot; srcset=&quot;/static/5ded81ea532b4554f365e1904a4b95de/772e8/2.png 200w,
+/static/5ded81ea532b4554f365e1904a4b95de/e17e5/2.png 400w,
+/static/5ded81ea532b4554f365e1904a4b95de/5a190/2.png 800w,
+/static/5ded81ea532b4554f365e1904a4b95de/c1b63/2.png 1200w,
+/static/5ded81ea532b4554f365e1904a4b95de/29007/2.png 1600w,
+/static/5ded81ea532b4554f365e1904a4b95de/06868/2.png 1974w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;IP地址也具有以下特点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;地址由两部分组成，可以说是分等级的。地址管理器在分配IP地址时只分配网络号，剩下的主机号由网络号单位进行分配。路由器仅根据网络号来转发分组，这样路由表中的项目减少，减少了路由表的存储空间以及查找路由表的时间。&lt;/li&gt;
+&lt;li&gt;实际上IP地址是标志一个主机和一条链路的接口，当一台主机连接两个网络时就应该有两个IP地址。&lt;/li&gt;
+&lt;li&gt;一个网络是指具有相同网络号主机的集合，不同网络号的局域网要用路由器进行互连。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;IP地址和硬件地址&lt;/h3&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/2b5378d83ba164fba2f3c31683812414/c655d/3.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 37%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAABYlAAAWJQFJUiTwAAAB60lEQVQozx2R208TcRCF++f5ppD4aPTJxOiDvmCMEiQYWTGNrdwqoUQRaLFQra2NokFaAttaabu9QGF7Y7u9EqjSZBF6+fzpvEwymZz55hyTQ95g3DtJ4PAP8TJMqTPcc9/CHrGz34CE1uWgCmq9S0H0pN4hrLVJVnska7BZOOXlmgXXzzDbFTC9Db5izH4Vd0LlvRJjOTuPb/8jo75JtEqReC1HRMtQO6ljC7hYU2SK1QZbxV1ipQLqYZ5x2zVs228I/RN0fF7E6ZCI1ov4CzF+5ItYQ3Gu+z4gZ3XW9TTfKwpKQ+PGJzcTqRC5Rh2v2A2KQ/mqzsLUMF7lG7IuBF1by8w7x8getemd879aikFzqckvo0erCTMSPLrbYfHSMRO3zyiVoHcB3TYYrS5aSCVTqbN5eCEIvQtYzTfZ0g0Seo+o2sEc2GPgmQ939IR4vofP32HOafB8KMqgtEsgITzU26TEi1H1GOuLO8zKq4SExyZ3qMbodJiRlQySPcnD2SyDconXkTyPHXmGl9KYnSmG5vaw7KSZTR8hecqMLKV4Mp9Cmk5hWY3hOfgtoAShXOnwNFOhz/uV/lU/95UcG5qBIhKU9stc8Xzh8jsvD5JF1gsGOyJdKVOmT8z7V3wMxHOslc7ZFsRB7Yy/pWXPshxKJNUAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;3&quot; title=&quot;&quot; src=&quot;/static/2b5378d83ba164fba2f3c31683812414/5a190/3.png&quot; srcset=&quot;/static/2b5378d83ba164fba2f3c31683812414/772e8/3.png 200w,
+/static/2b5378d83ba164fba2f3c31683812414/e17e5/3.png 400w,
+/static/2b5378d83ba164fba2f3c31683812414/5a190/3.png 800w,
+/static/2b5378d83ba164fba2f3c31683812414/c1b63/3.png 1200w,
+/static/2b5378d83ba164fba2f3c31683812414/c655d/3.png 1586w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;ol&gt;
+&lt;li&gt;在IP层抽象的互联网上只能看到IP数据报，源地址和目的地址始终是IP1和IP2。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;路由器只根据目的站的IP地址的网络号进行路由选择。&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;在局域网中链路层，只能看见MAC帧&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;IP层抽象的互联网屏蔽了底层的细节，只要在网络层上讨论问题，就能够使用统一的、抽象的IP地址研究主机和主机或路由器之间的通信。&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;地址解析协议ARP&lt;/h3&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/b44b307b7c1771b3218a5b28d3b16b14/764d7/4.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 30.5%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAGCAYAAADDl76dAAAACXBIWXMAABYlAAAWJQFJUiTwAAABsklEQVQY0x3QwW4SYRSG4b9aYpvopomLxlswcWFc2XgFbozxCnTlssZd3eC2Bk1ajeKYFDWpsdA2RmqiDKEFRAu11gKtAYodJh0sFugMzMAMvB1cPDmr8+WcT8QqHeJFB3+pwWQsyYNwhIfyJ25pe1yhw0SvxVXaTBwbXGuaXNYtJrUGmz/7fEk4JDJ9amaPA8MhWbEQa0qL6LrKdKnGiN5gTKty4V6ac7dzjEwpeO6XOX23iNg1EYeH7ixwXTdJrnxF8oeYk5b4+GGZXDZLWrMRidI/FoNhnuzsIwDRhbOXfjEmUlwczzDu+cZ5EWd06YgzZQ2R2uSGbrAQeM2b+QC+x9N4vV4Wgots1d39VbVLqtjHt3+McLp4bJthw2JY7yDqFkPum6eabYZ6MHogI35I3Gw1CAXmmZmdIZ/Pk93eRqlUyFQdN1CxkAttwmWDWTf02YCq89T1XGsj1WxeuuaOYCq6wZ23YQK7VTYUnbTS5HcTCjrs1PvElf8dWqy5ZSaUDuuu7wN/LDKqQ2RLQwpGefHuM4/87/G9ChHN/SW+12JVtYkpXeRym4hLLpsMjjsBCY59zJZho6YAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;4&quot; title=&quot;&quot; src=&quot;/static/b44b307b7c1771b3218a5b28d3b16b14/5a190/4.png&quot; srcset=&quot;/static/b44b307b7c1771b3218a5b28d3b16b14/772e8/4.png 200w,
+/static/b44b307b7c1771b3218a5b28d3b16b14/e17e5/4.png 400w,
+/static/b44b307b7c1771b3218a5b28d3b16b14/5a190/4.png 800w,
+/static/b44b307b7c1771b3218a5b28d3b16b14/c1b63/4.png 1200w,
+/static/b44b307b7c1771b3218a5b28d3b16b14/29007/4.png 1600w,
+/static/b44b307b7c1771b3218a5b28d3b16b14/764d7/4.png 1782w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;地址解析协议ARP会在主机中设有ARP高速缓存，这个缓存中存放各主机路由IP地址到硬件地址的映射表，并且这个映射表还定期更新，解决表中数据变动的问题（可能有新增的主机或是有主机撤走）。&lt;/p&gt;
+&lt;p&gt;主机A向主机B发送数据时，一般而言会有以下两种情况，简单的来讲：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;主机B的IP地址在主机A的ARP缓存中存在，显而易见，这种情况直接把IP地址写入MAC帧，然后传输即可。&lt;/li&gt;
+&lt;li&gt;主机B的IP地址在主机A中不存在，这种情况主机A会向局域网上的主机广播发出ARP请求分组，类似于“我的IP地址是XXX，MAC地址是XXX，IP地址为ZZZ的，你的MAC地址是多少”，不是ZZZMAC地址的主机不会理会这个请求分组，而主机B的IP地址和主机A中要查询的地址一致，于是就将自己的MAC地址写入ARP请求分组，并且&lt;strong&gt;单播&lt;/strong&gt;给A。主机B同时也会在他自己的ARP高速缓存中存储A的IP地址MAC地址映射。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;ARP高速缓存中的映射还有生存时间，凡是超过生存时间的就会删除。这就是为了防止出现通讯时，一台机子的MAC地址突然改变，但是IP地址MAC地址的映射仍然不改变，两个机子之间无法进行通信的问题。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;ARP是解决同一个局域网上主机或路由器的IP地址和MAC地址的映射问题的。如果另一台主机不再该局域网上，就可以用路由器做中转。&lt;/strong&gt;&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/7bd3dee8ee6d8c331c9a8c07e2e5cde3/6052f/5.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 44.99999999999999%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAACLUlEQVQozzWRWU8TURTH+2k00RfRL+Hn8A2jieiLb8YnEk2IkZCGpdQC7XSzQ4vYlrJMCUgrsRuFFFqKorQMM53uSwLJj85Vb3Jy7snZ/r97LU9SH7m78ZRH8ZeMKGM8HPr7m895fejgVd7OaNbKm4LE+6LMu5LMh9MQj/fecm/jmah/sPWCka0x7sRGWVPTWHLn58z7lpBW/IQ2w8QScbzhZdZ3FZY+u3GFfHi/yPiGFlr/SkSJkSkdsqJE2cv/wBcJEv22xdqewumvMyyVqsanuXlkf4CAz49P8uBxSvw8PcPQauiqxlVVpV4z0K804QfdPp1mi0GnN/RtWkaDhm7Q7/WwlH5XmbPN4XQ5Ca2E2NndYTkYJDi0ebsdt9stckdHR8RiMQKBAIqikPyeJLoWJR6P4/f7RdztdrFcVC+xWq3YbDZmZmZIJpOicWpqiomJCWFmbnV1Ffu/BbIs4/V6WVxcZHJyktnZWfL5PD1TYfnPJQsLC0KRw+EQCsziYrHIyckJqVSKg4MDstksmUyGUqlEq9Xi+PiYWq0mlJ8P/8GMK5XK34GmAo/HIxSEw2ExcH9/n0KhQDqdJpfLUS6XUVVV3M1mXdfF8GazKYZqmoZ5LKpeEwhOp1PINzEikQjb29sCe3x8XGBPT0+TSCQEhcvlEkSSJIk+M2+SXV9fD3/54kLg9Pt96vW62NRutxkMBiI2sUxvmvnonU5H5A3DEOr+1zQaDW5ubrgFwEpKhSwWylQAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;5&quot; title=&quot;&quot; src=&quot;/static/7bd3dee8ee6d8c331c9a8c07e2e5cde3/5a190/5.png&quot; srcset=&quot;/static/7bd3dee8ee6d8c331c9a8c07e2e5cde3/772e8/5.png 200w,
+/static/7bd3dee8ee6d8c331c9a8c07e2e5cde3/e17e5/5.png 400w,
+/static/7bd3dee8ee6d8c331c9a8c07e2e5cde3/5a190/5.png 800w,
+/static/7bd3dee8ee6d8c331c9a8c07e2e5cde3/c1b63/5.png 1200w,
+/static/7bd3dee8ee6d8c331c9a8c07e2e5cde3/29007/5.png 1600w,
+/static/7bd3dee8ee6d8c331c9a8c07e2e5cde3/6052f/5.png 2030w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;h3&gt;IP数据报的格式&lt;/h3&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/3d2003d0b90cea2d6f713245bd894ee6/966c1/6.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 44.99999999999999%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAACWElEQVQoz03RSU9TURjGcZYmhhgTEtBPYlQ+g2sXxo3ELS6IBhmDSJiMBoqoRINEpQWEygyl5ba3dITeTnChvb2dA7QiASmDw9/bKImL5z05ec/5Je85JULiGJOyz7gYx7AU48P8BsOLIfSWGGOiwqiwzqi2jntyjDl2+exQGTbHGLWnMEW1vT3Lov8IMXuKNXlCiTV5jDGQQj8bpG11nOaggerJHmpMr2mWDDR4PvJ000iTT09nfJbO5By19kEeWgZoT0zTlxVZWstr4NlfUJL2WJhwoxtZpltd4FFgiLrQMO0787Qmp2hNTdGWmeFJ/AstqpEG2aD1P1HjfEf9poHePRGT9B/o2NjHKmWZsKno4gLPd8z05pfpPxTpPxDpVKZ4LAzQ6HpPd3yanpxAz66A7quVvkMrr7IrmKVv2M5BW/YHg4KfPr2JNxEHL2MOuuweOgQXHTYvLUsC9dMCdZMWmuZs9Cdd6KJWnnm1vuhF57cxI2WwZ39SfL4SMXPGrC9N15KLsqTMxWyE0nic0kSCS3GVCjlMudlMhSBQ7nZzJb3F1UyEMjXCBTXGZSXEYDCJSwOFIlhUndu/MaUKNCs56uU81R6ZB84gd7WD1+QElYEwN4IyN4NbVG6luB7NcEvdpjGWpymSY1Y5wJ7WfjlVHFkrRdkkF1iJnuLzHWEwOhiZsPDCqVIlp7lnVbjvSVAVinDHH+X2ukqtsouUOGEtfYb4D7Odg8UMLezz1rSPxXmAGD5BTP5CVAqEU8esSgV8oQKBzAlutYBXPcKpfmdZu1fMOVbMH1vGSWwg36F9AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;6&quot; title=&quot;&quot; src=&quot;/static/3d2003d0b90cea2d6f713245bd894ee6/5a190/6.png&quot; srcset=&quot;/static/3d2003d0b90cea2d6f713245bd894ee6/772e8/6.png 200w,
+/static/3d2003d0b90cea2d6f713245bd894ee6/e17e5/6.png 400w,
+/static/3d2003d0b90cea2d6f713245bd894ee6/5a190/6.png 800w,
+/static/3d2003d0b90cea2d6f713245bd894ee6/c1b63/6.png 1200w,
+/static/3d2003d0b90cea2d6f713245bd894ee6/29007/6.png 1600w,
+/static/3d2003d0b90cea2d6f713245bd894ee6/966c1/6.png 1694w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;IP数据报由首部和数据部分组成，首部固定部分的长度为20字节，有长度可变的可选字段。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;版本：即使用的IP协议版本。&lt;/li&gt;
+&lt;li&gt;首部长度：总共4位，最多可以表示十进制数15。一个单位代表4个字节，由于首部的固定长度是20字节，因此首部长度这个区域的值最小是5，如果有多出来的长度不是4的倍数，填充部分会自动补0，来保证首部的长度是4字节的倍数。&lt;/li&gt;
+&lt;li&gt;区分服务：这个属性没啥用。&lt;/li&gt;
+&lt;li&gt;总长度，记录IP数据报的总长度。有16位，那么数据报的最大长度是65535字节，实际上这种情况是不可能的。各个IP层下面的数据链路层都规定了MTU，大于MTU的数据就要分片传输，分片传输时每个片都要复制一份数据报首部放在片头。&lt;/li&gt;
+&lt;li&gt;标识：&lt;strong&gt;不是编号&lt;/strong&gt;，只用来标志记录，在分片传输情况下，就是用标识判断哪些数据报片属于原先的数据报。&lt;/li&gt;
+&lt;li&gt;标志：占三位，目前只有两位有意义。最低位MF：表示后续还有分片。中间位DF表示是否能进行分片，值为0时表示可以分片。&lt;/li&gt;
+&lt;li&gt;片偏移：指出数据片在原分组中的相对位置，片偏移是以8个字节为偏移单位的，这就表示了除了最后一个数据片意外，其他被分数据片的长度都是8的倍数。&lt;/li&gt;
+&lt;li&gt;生存时间：防止数据报在网络中无限制的兜圈，生存时间一到就销毁。生存时间代表着“跳数限制”，即表示最多能经过几个路由器，没经过一个路由器，生存时间就-1。&lt;/li&gt;
+&lt;li&gt;协议：这个协议指出数据报携带的数据属于哪种协议，以便使目的主机的IP层知道将IP数据报交付那个上层协议处理。&lt;/li&gt;
+&lt;li&gt;首部检验和：这个字段是用来检验数据报首部的，不检验数据部分，&lt;strong&gt;不使用CRC校验。&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;源地址：12位，懂得都懂。&lt;/li&gt;
+&lt;li&gt;目的地址：12位，懂得都懂。&lt;/li&gt;
+&lt;li&gt;可变部分：有各种用途，功能很丰富，不详细解释。但也是因为有了可变的部分，增加了路由器处理数据报的开销。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;ip层转发分组的流程&lt;/h3&gt;
+&lt;p&gt;虽然互联网所有的分组转发都是基于目的主机所在的网络，但大多数情况下都允许有这样的特例，即对特定的目的主机指明一个路由，这种路由叫做&lt;strong&gt;特定主机路由&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;还有一种默认路由，简单的理解就是查找路由表中的其他项，没有找到合适的，就是用这个默认路由，将数据报交付给这个默认路由指示的下一跳，这个适用于一个网络有很少的对外连接情况。&lt;/p&gt;
+&lt;p&gt;当一个路由器收到待转发的数据报，从路由表得出下一跳的IP地址之后，不是将这个数据填入IP数据报（==IP数据报中早就有源ip地址，目的ip地址了==），而是交送数据链路层的网络接口软件，接口软件将IP地址通过ARP转换成MAC地址，将MAC地址放在MAC帧首部，然后根据硬件地址转发到下一跳路由器。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/dc33eb27b21a9ea97b934974d65be7ad/d8fc6/7.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 45.49999999999999%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAACEElEQVQoz52QW08TURSF+4v0ReGB+D/8F8SAifrmk6RiRIxOAUvTRqCBXqfFlNbp9GbH6cVeaaGXpBItKY1UokgrkM+Zk/AHPMnKXmflnLXX3paHdQe34rNMxee4ozxgSp3nrjrHTOoRCy0vC4cenlY3WGwHWOqGuJ97zm1llmnj3VRinmkDM58ecy/7hNrZVyzt0xHOwBbWlVdIG3YWV5d59uYFSw6JVZcdOfqBrcAOO2G/wPK6xOK71yxIL7F73hPRVCq9Js3vXS4uJ1hOf12y9taG7AuSVpM41uwEvX7CgRC7oTDtwxbxmMKuHCZg6OrHOHlNJ6kYRsUSPwZD8S+TSDG+GGM5+zPG7d4iFA4jh2Si0SiFYoHj42NOTk6o1mp0u10qlQqDwYD9/X20zxpfSiVK5RJ6The8bujX19em4V9sNglJkojFYlitVsHdbjder5fNzU1RM5kMvV5PGObzearVqmhSLBap1+u0222urq6MkX9PcLmcBlwEg0GcTqdANptlb2+PVCpFuVwW3ISmaSSTSdLpNKqqous6/X5faMLw57lhaBhsb2+LJKaB3+8nl8sxHA7pdDoiVaPREPWGN5tNkdK8myupGasZjUbmyBO8Hg8+nw9Zlmm1WiJ+IpHg4OCAQqFAJBIRjcxUiqKIaiYztZuUpn50dITl2+k5a6sr2O3rYmxzf2aq/z3/AOdGTLJrrw2OAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;7&quot; title=&quot;&quot; src=&quot;/static/dc33eb27b21a9ea97b934974d65be7ad/5a190/7.png&quot; srcset=&quot;/static/dc33eb27b21a9ea97b934974d65be7ad/772e8/7.png 200w,
+/static/dc33eb27b21a9ea97b934974d65be7ad/e17e5/7.png 400w,
+/static/dc33eb27b21a9ea97b934974d65be7ad/5a190/7.png 800w,
+/static/dc33eb27b21a9ea97b934974d65be7ad/c1b63/7.png 1200w,
+/static/dc33eb27b21a9ea97b934974d65be7ad/29007/7.png 1600w,
+/static/dc33eb27b21a9ea97b934974d65be7ad/d8fc6/7.png 2052w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;IP转发的过程并不是直接知道转发的道路，而是走一步问一步。&lt;/p&gt;
+&lt;h2&gt;4.3划分子网和构造超网&lt;/h2&gt;
+&lt;h3&gt;划分子网&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h4&gt;从二级地址到三级地址&lt;/h4&gt;
+&lt;p&gt;从二级地址到三级地址，为什么要划分子网。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;IP地址的利用率低，一个公司可能去申请B类地址，导致地址大量的浪费。&lt;/li&gt;
+&lt;li&gt;给每一个物理网络分配网络号会使路由表变得太大，效率变低。&lt;/li&gt;
+&lt;li&gt;二级IP地址不够灵活，紧急开通网络速度较慢。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;于是从1985年起，IP地址中又增加了子网号字段，IP地址由两级变成了三级，使用比较灵活，这就叫做划分子网，目前划分子网已经成为互联网的正式标准。&lt;/strong&gt;&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/9ea81397ced0bcb2b565e762bedae649/26162/8.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 40.5%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAABYlAAAWJQFJUiTwAAABgUlEQVQoz5WQ7U/aUBSH+f+/Lerm1CgvKSGaORNkirK1apyoECcEX2qhQgGBlkVrXaxt7+NNJdk+sCw7yZN7zs3J7/zOSZxbTZSvn0kWcswoST5+ypJVt/iwpjCbTXHktKl6A07dPpW/csex28N6fiBhuffk9zoclB0sp4856DH65dIdj2Js38N+efonI4kXvpBAxrAL5X2Tfs9ibDvUzn5QP69xenyCCEL+J2JB3/Mpbm+TSmXI5wuk0xmWl1eYn1+g3enGjWEYEUVCvr+J6yiU+RtCiIng4zOFzQ0WFt+xkpxDkbdbXJrlxqgThO5ktpjAH/UUh14QcHEBpYK85brDasbmrPpT5h2qZahVQNuBy7rgugH7JUHpi0Atgtn0qcgmTdtDVVV8339zeHiok1O+s5o7IpuusLtTZmP9BO2byfuZIlrJwh7CoB/RuhFcNaS4NGGPfCzrFsMw0HWdQJqLBcfjIUbzklbrSt5Mp91uYZq6nPgo/xvcPwynrDl95VdDaUcSbbR/TgAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;8&quot; title=&quot;&quot; src=&quot;/static/9ea81397ced0bcb2b565e762bedae649/5a190/8.png&quot; srcset=&quot;/static/9ea81397ced0bcb2b565e762bedae649/772e8/8.png 200w,
+/static/9ea81397ced0bcb2b565e762bedae649/e17e5/8.png 400w,
+/static/9ea81397ced0bcb2b565e762bedae649/5a190/8.png 800w,
+/static/9ea81397ced0bcb2b565e762bedae649/c1b63/8.png 1200w,
+/static/9ea81397ced0bcb2b565e762bedae649/29007/8.png 1600w,
+/static/9ea81397ced0bcb2b565e762bedae649/26162/8.png 2020w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;子网号是从主机号中分出来的。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;h4&gt;子网掩码&lt;/h4&gt;
+&lt;p&gt;从IP数据报首部无法看出源主机或者目的主机的网络进行了子网的划分，因此判断网络地址还需要一样东西，那就是子网掩码。&lt;/p&gt;
+&lt;p&gt;长话短说，子网掩码典型的特征就是前面的位都是1，后面的位都是0，它主要用于判断转发的网络地址，将目的IP地址和子网掩码进行按位与操作，根据子网掩码的特点，主机号与0相与全部变成0，剩下的就是网络号与1相与，等于网络地址本身，将得到的网络地址和路由器路由表上的网络地址进行比对，路由器就知道是否要转发了。&lt;/p&gt;
+&lt;p&gt;使用子网时的跳转和之前的很类似：&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/4560fdaccb1a3ddaea95d8bd19b63822/11864/9.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 43.99999999999999%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAACNUlEQVQoz52QTU8aURSG+TdNu+jK/9JFl921adrERbcmamIoVduIihjAL4aZkcGPisqXQpHaioggRWYoKOAIRY1pLSYl+nTQ/oK+yUnuyXvue+5zTQ/Cz+mKdvNo4yVPkmb6VYFX2XE+lJZ4k3PScziHRfNhVn30FDz0qTKjR6s82x/h8eZrumLdPIy84OnuIB2ZFqKrDDlHsUkuHJLImMvLiENAVBoEY20+Bv6Qybdp/j6neq5Tu2hQPTtF1Y/InRQ5rJdRmxUql3Vub28xLSmLTDumGBkeYs4ZZrBPY2q8RGLjF05rBZ+g8jVxxH7yBEmQEd0C6/41IsEwnzaiJGJbZHbTnNZ02u02JlGSkGQJl8vFhH2ct5Z+5HmB7S8h3g+L2EbjDJnjrC5AMBRgctKO3+9nJ5kkvhUnk8mgFYuk9lL3yKIo4na78fl8LC8tMz+vsLeX4ax5xXH5Br0KJ8dGVW9oNM441X8YARrpdJpsNkvRCKtUKuRyuftAr1fBPjGBx+NBkmSi0TCJzxEWvSri9E9Ca01ikSabwTbJ7UtjyZWxMHk3G4vFCIVCBAIBUql/L5yZmcFisTA7O2eYa9jGfAxbIkza/NjtdszmdwwMmBEEid7eXqM3G7OzWK1WOncdDgfBYJBarUar1cK0vh5AlmUD1Uuh8I3LC/hegGYd6g2dUqlEuVzm4CBr+Id35051EDVNI5/PG94Buq5zfX2NaWVl5e4PFUUxMCQDZ4d7tfkf/QVDAlA3GFNucQAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;9&quot; title=&quot;&quot; src=&quot;/static/4560fdaccb1a3ddaea95d8bd19b63822/5a190/9.png&quot; srcset=&quot;/static/4560fdaccb1a3ddaea95d8bd19b63822/772e8/9.png 200w,
+/static/4560fdaccb1a3ddaea95d8bd19b63822/e17e5/9.png 400w,
+/static/4560fdaccb1a3ddaea95d8bd19b63822/5a190/9.png 800w,
+/static/4560fdaccb1a3ddaea95d8bd19b63822/c1b63/9.png 1200w,
+/static/4560fdaccb1a3ddaea95d8bd19b63822/29007/9.png 1600w,
+/static/4560fdaccb1a3ddaea95d8bd19b63822/11864/9.png 2034w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;构造超网（无分类编制CIDR）&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h4&gt;网络前缀&lt;/h4&gt;
+&lt;p&gt;CIDR的主要特点：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;消除了传统的ABC类地址划分的概念，消除了划分子网的概念。&lt;/li&gt;
+&lt;li&gt;IP地址由网络前缀和主机号组成，并发明了斜线计法（斜线代表掩码前面几个1）。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;一个CIDR地址块中有很多地址，路由表中就利用CIDR地址块来查找目的网络，这种地址的聚合被称作路由聚合。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;h4&gt;最长前缀匹配&lt;/h4&gt;
+&lt;p&gt;路由表中进行查找路由表的时候，可能会得到不止一个的匹配结果，这时候就要选择最长的去匹配。&lt;/p&gt;
+&lt;p&gt;匹配涉及到匹配的算法，最简单的算法就是对于每一个可能的网络前缀长度，直接从地址中提取M位，然后到路由器中找跟M位相关的匹配，这种算法虽然简单，但是一旦路由器中没有地址，算法就要进行32次，效率较低。&lt;/p&gt;
+&lt;p&gt;为了提高效率，就会采取二叉线索查找。找出每个IP地址对应的唯一前缀构造二叉树，这样查找起来每个地址都对应唯一的叶子节点。现在考虑两种情况，第一种是路由表中没有对应的目的IP地址，这样在查找的时候，就会找不到对应的唯一前缀，直接就可以停止查找，第二种情况是能找到叶子节点，这个时候还要将目的地址和叶子节点的掩码进行与操作，看看是否能匹配上。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;4.4 国际控制报文协议ICMP&lt;/h2&gt;
+&lt;p&gt;为了更有效的转发IP数据报和提高交付成功的机会，在网际层使用了国际控制报文协议ICMP。ICMP允许主机或路由器报告差错情况和提供有关异常的报告。ICMP是互联网的标准协议。但是ICMP不是高层协议，他是IP层的协议，他封装在==IP数据报的数据部分==。&lt;/p&gt;
+&lt;h3&gt;ICMP报文的种类&lt;/h3&gt;
+&lt;p&gt;ICMP报文的种类有两种，即ICMP差错报文和ICMP询问报文。&lt;/p&gt;
+&lt;p&gt;ICMP报文的前4个字节是统一格式，共有三个字段：类型、代码和检验和。紧接着的4个字节和ICMP的内容有关。而根据内容的不同，数据字段的传送也不同。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/436d6f13661ab8d1ebeda66d8069513f/ee787/10.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 31%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAGCAYAAADDl76dAAAACXBIWXMAABYlAAAWJQFJUiTwAAABGUlEQVQY06WOUUvCYBSG9wO7iKggwl8TZAaRBlFUdmERkgYlURklhYGbydxcwuaG5rRCK5s3RTF9+tq9EXTggcN5Xx6OtN08Z7wUJqTHmNWizJSXmFIiLNTShK00O+4Vu4L1xhkbjSzzViogVFpmQgkzWYwwXVxkrDBH1Mkg6d4Dce2EtZsUq/l9Etop170qt70ahVeTat8NqPTv0b2GuNsURZZ7rnDR1QQ6l4JsR8XoN5Hev+BONTlI7JE7zuI9vvCfkbxPULQKW/FNDjNHI4uD4VAwCPBH8JNJb0KYl0usxKIkk0kMw0CWZVqtFqZpYllWsPu+H4iHQvzrhx+i99TpUlZVHMcJBIqi4Loutm1Tr9dpt9t/Fn4DOC2u2PZqRoEAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;10&quot; title=&quot;&quot; src=&quot;/static/436d6f13661ab8d1ebeda66d8069513f/5a190/10.png&quot; srcset=&quot;/static/436d6f13661ab8d1ebeda66d8069513f/772e8/10.png 200w,
+/static/436d6f13661ab8d1ebeda66d8069513f/e17e5/10.png 400w,
+/static/436d6f13661ab8d1ebeda66d8069513f/5a190/10.png 800w,
+/static/436d6f13661ab8d1ebeda66d8069513f/c1b63/10.png 1200w,
+/static/436d6f13661ab8d1ebeda66d8069513f/29007/10.png 1600w,
+/static/436d6f13661ab8d1ebeda66d8069513f/ee787/10.png 2022w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;下面是ICMP差错报文的格式：&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/655dba74b91c4c6d9c5ea69d142356fd/3dfa7/11.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 44.99999999999999%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAACaUlEQVQoz0WQ20uTcRyH928EWRJBpUaFUHgR9B9IRJcR1oXURWVmSgZFJy+K0osRhBWmCIakreapzZ3erenUzOl0ttO7gztoO+iOr+nTTxO6ePj+Ln7fh8/3o7rt7OSE4QZnzS2cMd2h1v6E5oWuXdS+Idq9X3js/sgrrwa1rOVlcICOkIaHvl7O2Vo5bWqixtJMtfEWI/FpVPOpBP1+P5qQzOegzNdwCH0khjWyiiOWZnIliU28J8IJxmYj9I4G6Psm0zMiduZ86AIBxryCFZmUkkPlXttGCm5jcG+icyvoXSW63BlalqPcmw/RvBSlacbDXc8qN+fXuCLFqbPEuGqN07iYpFUWf71JxmSFdAFUztUS+kCe7tEUg6YimuFNHtgTHDTYONw/TKXDySHdBAdCK5Rl1ynPpSnPZyjfSFOWTLE/mWZfNEaPN83v7NaOUMHoL6KP5WhZkmicHqHBJ1HnMnHJMUZD2MF54wB9rgg2Vx7D7DrGHwJ3FmMgt4tJFlMuEsv+QTWXKDERF+dmMtSMq6kaeMop51sqzB2cHGyj2vGa47YOPsz4mLYWkUZS2LRprAt5pISCFCohhUsYg3vCxYzCO02G+8/j1P+yUh+1cs2t56L1E5enh7geFGnDJvqXY3z3KZi8eczeAualPJafOcwimTlc/C905zZ51r5K7QU/Rxa7qZTfUKF7wTFNG1VDjzjqVFMe7eT9lIcpqxAZ0kj6DNK4QJvC4ilgiRQxCHF0RxjPb2EKZhkXpVo8G9j9BfSOIlqxPCmqMPtEkuUNLCKFJa78I7E3Rf9SpIRZnG1fKZFXtvkL54JMo8AnMYAAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;11&quot; title=&quot;&quot; src=&quot;/static/655dba74b91c4c6d9c5ea69d142356fd/5a190/11.png&quot; srcset=&quot;/static/655dba74b91c4c6d9c5ea69d142356fd/772e8/11.png 200w,
+/static/655dba74b91c4c6d9c5ea69d142356fd/e17e5/11.png 400w,
+/static/655dba74b91c4c6d9c5ea69d142356fd/5a190/11.png 800w,
+/static/655dba74b91c4c6d9c5ea69d142356fd/c1b63/11.png 1200w,
+/static/655dba74b91c4c6d9c5ea69d142356fd/29007/11.png 1600w,
+/static/655dba74b91c4c6d9c5ea69d142356fd/3dfa7/11.png 2028w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;下面是不应该发送报文的几种情况：&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/1ca82b730d3426c7087a3df8c590ff56/3d22e/12.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 40.5%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAABYlAAAWJQFJUiTwAAAB2klEQVQoz52QTW8SARCG9+d56Elv/hRPJjWkRuNHBC0fitAuCyxtisVLpWgpFFjA5Ztd2AXCYkEE09D0IFEf2fXm0Ukmmclk3nneETyD92wpD7irPuF29SH3eiLyvEDw8iPPRikeDZMcfitxMCsgTXOELj/h+5LmaFFm25DZutjmTnGHW/n77OgJBPW7RbhxQriSIlA8wnsms59NsrfJxOcPhPPviOSOOe0ppOpnHFbSBNJxIufHHNRPyV1pFFY98tc63ZsJwuoH1MpNzk8yaLUWsXAEr/sVzx8/RQptaMUoPs8uCSlOXJR4vevH/9LLW/8b5P0o04GF1RuiqS2ul1cIv4CLUgkpKlFvNBhbFoZp0NG69A3D6c3BgFq9TqPZoNlqYU0sJ/WejjkcYAxMytUKX+dzhJ8bwZJSwe/3k0gkqNVqGBuhdruNqqpomoau60wmE2azGePxmNZGtNPp0O/3+TeE+c1vStU6e+EQ0WgUj8eDJEmIokggECCZTCLLMrFYjGw2SyaTcY67XC58Ph/pdJput+scWSwWfwmLShm3+wXBYJBQKIRpmkynU4douVw69Wg0cnp7ya4VRXHIbUe2G9vVarVCsDEnm38UCgVn2Gw2Wa/X/G/8AYZ3HYDdy6tuAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;12&quot; title=&quot;&quot; src=&quot;/static/1ca82b730d3426c7087a3df8c590ff56/5a190/12.png&quot; srcset=&quot;/static/1ca82b730d3426c7087a3df8c590ff56/772e8/12.png 200w,
+/static/1ca82b730d3426c7087a3df8c590ff56/e17e5/12.png 400w,
+/static/1ca82b730d3426c7087a3df8c590ff56/5a190/12.png 800w,
+/static/1ca82b730d3426c7087a3df8c590ff56/c1b63/12.png 1200w,
+/static/1ca82b730d3426c7087a3df8c590ff56/29007/12.png 1600w,
+/static/1ca82b730d3426c7087a3df8c590ff56/3d22e/12.png 2010w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;h3&gt;ICMP的应用举例&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;ping命令和tracert命令是ICMP应用的例子，是应用层直接使用网络层ICMP的例子。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;ping命令的原理：向目的主机发送4个ICMP回送请求报文，等待目的主机的回送。&lt;/p&gt;
+&lt;p&gt;tracert命令的原理：不断向目的主机发送IP数据报，数据包中封装的是无法交互的UDP用户数据报。不断地把TTL的数值设为1、2、3、4…这样在途中TTL过期之后路由器会发回时间超过的报文，达到目的主机时会发送回终点不可达的报文，因此实现了功能。&lt;/p&gt;
+&lt;h2&gt;4.5 互联网的路由选择协议&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3&gt;内部网关协议RIP&lt;/h3&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;  是一种分布式的基于向量的路由选择协议，和直连网络的距离是1，其他依次加1，最大距离只能有包含15个路由器，距离等于16时等于不可达，因此RIP只属于小型网络。不能在两个网络之间选择多个路由，即使有一条路由的速度更快，永远选择路由器少的路。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/28a280ed2262eb4230e606406f1841b9/813c1/13.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 34%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAABYlAAAWJQFJUiTwAAABZElEQVQoz62RW0/qUBCF+f/PELS1FkpaGkUbkXCp2jQkmGMpLVIFIwExJuCF4OXoiZccPstGH3x3kpW1Z83M97IT1qHD7qHLtrvHfuTHbvPnqs+AF07+TQkfx4RPkx9q/71e+peCeOfsZcocSOwFHuuFPCt6FnnTQNkwMO0SVsPBv+xzz3/ueOM21h3vwscfzz+ym9iv35+Zz+ckev0RupYlrxusrymYRp6cmiGrqOxsbdPtRLSOPE6PI9p+K/YOD9MZnSAU7+NWIPzj9Y1FJcLuOWuyRN400XUdNZNBNww2CwUkWUbL5ahUKiKzbRtVVWn6PsVikQPHIZVKIUkSF6PREtg+6SKtrqJpGpZlYcbgZDIpejkGKopCuVwWfbVaFcelUolarYYTA9PptNiv1+tLYK/XE4MoihgMBgyHQzEMw5AgCIQWfaPRwHVd4d+553k0m02RLTgCOJ5MmM1m/EYtPuUTGwDfTDWlyV8AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;13&quot; title=&quot;&quot; src=&quot;/static/28a280ed2262eb4230e606406f1841b9/5a190/13.png&quot; srcset=&quot;/static/28a280ed2262eb4230e606406f1841b9/772e8/13.png 200w,
+/static/28a280ed2262eb4230e606406f1841b9/e17e5/13.png 400w,
+/static/28a280ed2262eb4230e606406f1841b9/5a190/13.png 800w,
+/static/28a280ed2262eb4230e606406f1841b9/c1b63/13.png 1200w,
+/static/28a280ed2262eb4230e606406f1841b9/29007/13.png 1600w,
+/static/28a280ed2262eb4230e606406f1841b9/813c1/13.png 2004w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;  好消息传的快，坏消息传的慢。最大优点是实现简单，开销比较小。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3&gt;内部网关协议OSPF&lt;/h3&gt;
+&lt;p&gt;使用分布式的链路状态协议。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/a9a5bf4be0456a2cf082ac8bb3d2d7d5/0faf1/14.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 42%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAABYlAAAWJQFJUiTwAAABxElEQVQoz52R60/aYBTG+f8/Ls5pMGChFETacmlLudRh1CyL0Q0jThk4p8kGA8r9UoT+9iIf9n1PcvI855Jzcs4JWLWv7Kcd3icdyk9dCt97FBodrPsudt2l2OwIv0X5h8vn3m/sZhXj4Zp8o4rzXMOs1yg1u5y1u9QXPQIv7pJTZ4IeH6ArHRLhFsWsK7iNtPeMEhxyuPPK0WFH1F1ysL/Hh51dwUGUqIQimZipCSf2C6w9Aq3BlJR2TCi0ixwLEjx4h6rH0XULSYqjJq+plMecntkYlo5dMN4sb+ew8llua1Xu7r9QPrEYT0YE/PUax3GIRo6RwqZoahKTcySjc7QYYvKKydin34OByxtvbDQAtwveApGHYR/mMwis1z4bVK8gGYZzHR7vIZfyKRk+xRzkRUxTwFDB1CCT3Op0An4+wuXFNl7/JhqCz5/WhER0TOOqy69Ik6fbKZ/O4eLjCrfnsVyOmc1HzBcjptOB0EPm860ejfqChZ4NWfuvm6fMcCoV5GgYWZZJqDJm9oFCBvQjl5ubOyxrc88ImUyWtJ7GMExUVUXTdHH7EIqiEIlEabXaYuXVilKpRCql4nke/+DzP/gLabAqXpSuwj4AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;14&quot; title=&quot;&quot; src=&quot;/static/a9a5bf4be0456a2cf082ac8bb3d2d7d5/5a190/14.png&quot; srcset=&quot;/static/a9a5bf4be0456a2cf082ac8bb3d2d7d5/772e8/14.png 200w,
+/static/a9a5bf4be0456a2cf082ac8bb3d2d7d5/e17e5/14.png 400w,
+/static/a9a5bf4be0456a2cf082ac8bb3d2d7d5/5a190/14.png 800w,
+/static/a9a5bf4be0456a2cf082ac8bb3d2d7d5/c1b63/14.png 1200w,
+/static/a9a5bf4be0456a2cf082ac8bb3d2d7d5/29007/14.png 1600w,
+/static/a9a5bf4be0456a2cf082ac8bb3d2d7d5/0faf1/14.png 1956w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;更新过程收敛的快是其优点。&lt;/p&gt;
+&lt;h2&gt;4.8虚拟专用网VPN和网络地址转换NAT&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3&gt;虚拟专用网VPN&lt;/h3&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;生活生产实际中产生需要的本地地址需要：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;一个公司能够申请到的IP地址远远小于机构能给他分配的IP地址，公司中的很多主机只需要内部通信，不需要连接到外部的互联网，因为他不访问外部，并且外部的互联网也不是这么安全。&lt;/li&gt;
+&lt;li&gt;公司大量的内部主机如果随意分配IP地址，若有个时候突然想要访问外部，他的IP地址可能会和外部的IP地址重复。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;为了解决这些问题，同时为了满足大量的本地地址需要，于是RCF1918 指明了一些专用网络的地址，他们指定了一些IP地址作为内部的专用地址，不能用作访问外部，路由器在遇到专用地址时，不对他们进行转发。&lt;/p&gt;
+&lt;p&gt;采用这样专用IP的网络可以成为专用互联网，在多个不同地方的专用互联网中，很可能有很多IP地址是重复的，因为他们可能都使用上文讲到的供内部专用的IP地址。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;现在产生了一个新的需求，一个公司可能有多个机构分布在各地，员工也可能分布在各地，那还要怎么满足内部通信的安全需要？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;第一种情况是找专用机构搭专线，显然成本过高；第二种方法是使用互联网，不同的内部机构在互联网上交流，俨然像公司的内网，但是借助的确实互联网，形象的叫做虚拟专用网。&lt;/p&gt;
+&lt;p&gt;VPN用到了隧道技术，简单的原理就是，将用于内部交流的数据报加密，==路由器收到内部加密的数据报之后会将加密的数据报封装成互联网上的数据报发送出去==，这样就实现了机构之间的通信。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/87ef256397e4db979172b01bf849d8db/a01dc/15.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 45.49999999999999%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAABYlAAAWJQFJUiTwAAACV0lEQVQoz1WSW09TQRSF+UEG3/0HPmiMie9oNDHRByEkGI0aNAYJiQk3AcUbINcWWi4VSmkp7SkIB9OWhoJA6f1GKZRCe3o45XMAX3yYPZPMnm+t7DUVyWONlUSJ1aTKktjfLHl57t7k5U6cV7KXFzYHU4EDNpLQ/A6aXmtUP9SofXTK5GIJ977Kclxl+1CjfAYVUrSELaywECoyGylxzbNJpcHEFb2Jyt5ertqnuSW7qOr9yt2OVTqHVFq6FNq6FUyeEs6Ygj2kYBUrdVK+BNoFcCmpYVzP8EE6oHEyxaAuzI+eXYYtGYyeICOSmzH7LpLnhH6/wmDgFL0vJUAFpJgwJYDxvHYOVISKKtRSfJ6P8GAcrg9CnSlL50KQDvMmM940PRspehzbPBNCN/rL3B44o8eVQbcYxhlRLoCJY+3SoePcpXyE2ZqlxVGg2QUGbw5HuIhPNDutp3h8RdzJIjObeTqXNb7IGgbLHnP2Q6TI5dj+ARXxsIQlnUOXCdHnX2cqG2U0vI0uuEXfVpR2KUGrXZzXfRhTIcb3Y5gSMQaiOxj34zj+cyiG6gyqDOV2aC4u8PS3TNVsiZsja9T5ftJ6JtGGi/cn4s4/zT3bOnfG4L5dpjFs42N5BWs4z3yodAk8T8mxqzJ8FKA+bKBm0cJj6x41WwG68dCS99OU2KCt4OcTazTsbfNETlL9a463Owa6zuQLoE0AL0IJieKMqJjjWUbTQUYjAfSxAFO5KA3mMWq7ddS0G6n7NkL9xCDf/yxjysfQBwIYMlEm0gnxS4osiaQLapm/rKhdw62zxtIAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;15&quot; title=&quot;&quot; src=&quot;/static/87ef256397e4db979172b01bf849d8db/5a190/15.png&quot; srcset=&quot;/static/87ef256397e4db979172b01bf849d8db/772e8/15.png 200w,
+/static/87ef256397e4db979172b01bf849d8db/e17e5/15.png 400w,
+/static/87ef256397e4db979172b01bf849d8db/5a190/15.png 800w,
+/static/87ef256397e4db979172b01bf849d8db/c1b63/15.png 1200w,
+/static/87ef256397e4db979172b01bf849d8db/29007/15.png 1600w,
+/static/87ef256397e4db979172b01bf849d8db/a01dc/15.png 2006w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;ul&gt;
+&lt;li&gt;
+&lt;h3&gt;网络地址转换NAT&lt;/h3&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这个技术用于内部拥有本地地址的主机访问外部时使用，他只是将地址换了一下。因此他需要用到专用的NAT路由器，这个路由器一定要有一个可以访问外部的IP，内部的机子想访问外部的时候，NAT路由器直接就把内部地址转换成可以访问外部的IP地址。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/ef1345315081fc60520d9516210dc950/a1a4b/16.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 22.499999999999996%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAABYlAAAWJQFJUiTwAAABXklEQVQY0z2NyUsCcRiG50+NICioQyXYAh2iokOHypvSRutBSkudxjKbHC1t0ZwmLSk0SAuXzBZHW55+eOjw8vG87wOfFAo02Pc28G3VkV11vJsmh8o3qt9kajzOsCWApcfDYL/Mnq9ETPtl120K/xP/jslJqElUawo2OY+aSLaJEmOWVyztVawdFQY66li7coxa7wR/Mtz1IbZKy7FP57BNPjLSXaOvrcRo7xuOmTxztgJDnTXmZ1+Q5PIJR19JjrlC+9E54wZ7ZIVpxY72nSAmWPtJEjTjOGJOVgwP4ZabFLvOUsLNwtkWweYFxtc9kpK9QH1OoxUzHIkbq+Vw+J3MupYJPd9wXL1HfUoTzBssqttsnO4RLmdElyJUvGU9qrAWkTkoGOjlB6SdYhz59eo/yntKfPTiCLvwlC/xf6TxveitrF4H2LhV2X0z8FX1VtauD1jV93FVEkRrWf4AEJlHUx5FU94AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;16&quot; title=&quot;&quot; src=&quot;/static/ef1345315081fc60520d9516210dc950/5a190/16.png&quot; srcset=&quot;/static/ef1345315081fc60520d9516210dc950/772e8/16.png 200w,
+/static/ef1345315081fc60520d9516210dc950/e17e5/16.png 400w,
+/static/ef1345315081fc60520d9516210dc950/5a190/16.png 800w,
+/static/ef1345315081fc60520d9516210dc950/c1b63/16.png 1200w,
+/static/ef1345315081fc60520d9516210dc950/29007/16.png 1600w,
+/static/ef1345315081fc60520d9516210dc950/a1a4b/16.png 2054w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;NAT路由器中会有一个map表记录两个IP之间的映射，只有在内部主机访问外部，到达路由器时才会做记录，因此外部是访问不到内部的。&lt;/p&gt;
+
+  &lt;a class=&quot;gatsby-resp-image-link&quot; href=&quot;/static/f51dfe2fa4192c559ca2d02b6537c5c8/cc418/17.png&quot; style=&quot;display: block&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;
+  
+  &lt;span class=&quot;gatsby-resp-image-wrapper&quot; style=&quot;position: relative; display: block;  max-width: 800px; margin-left: auto; margin-right: auto;&quot;&gt;
+    &lt;span class=&quot;gatsby-resp-image-background-image&quot; style=&quot;padding-bottom: 27%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAABYlAAAWJQFJUiTwAAABZ0lEQVQY0x2Lay9CAQBA7z/0A3xljPlgNq9pNLM1plCKMIVyL0rX43rECuulvDPN3FlaCHUr5rHZjjsfzpezcwRlq4zN8YbZomE2V7COl1kQqwwOFekz5mhoTNDeHaGtc4eOniAuzxOW0aLeFxB9GosrGv71MpPTJSSphCA5qxibNeprVJ0crbV5uhtUDHU/9Df9Yqj/ZLirjMVQwGp8ZbDzUXcVBlq+GOstYul5ZaT3kf6WEnMj3wix9zRLhX3sCReOlBvn+SKmXQcRromR4YALxIddJs+WmUkHsCW8KB9Rwlwyr27hvt3UvyUWsgppsghXz/eE1HNmFR9TsoR0sI1z1YsYD3JaypJ8UdnLpPBFg8jHIcTwJtHcDfGnW1aTIeRkWH8UVuJ7ZLQ8wmExgycfYXjfg2nHjT0ZwLTtYig4z/r7FXLlAm/2CMfpGs5LBWvMh//t5B97SmbibANb3I81FSBSveMP3cI5Ji0CqZEAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;&gt;
+      &lt;img class=&quot;gatsby-resp-image-image&quot; style=&quot;width: 100%; height: 100%; margin: 0; vertical-align: middle; position: absolute; top: 0; left: 0; box-shadow: inset 0px 0px 0px 400px transparent;&quot; alt=&quot;17&quot; title=&quot;&quot; src=&quot;/static/f51dfe2fa4192c559ca2d02b6537c5c8/5a190/17.png&quot; srcset=&quot;/static/f51dfe2fa4192c559ca2d02b6537c5c8/772e8/17.png 200w,
+/static/f51dfe2fa4192c559ca2d02b6537c5c8/e17e5/17.png 400w,
+/static/f51dfe2fa4192c559ca2d02b6537c5c8/5a190/17.png 800w,
+/static/f51dfe2fa4192c559ca2d02b6537c5c8/c1b63/17.png 1200w,
+/static/f51dfe2fa4192c559ca2d02b6537c5c8/29007/17.png 1600w,
+/static/f51dfe2fa4192c559ca2d02b6537c5c8/cc418/17.png 1992w&quot; sizes=&quot;(max-width: 800px) 100vw, 800px&quot;&gt;
+    &lt;/span&gt;
+  &lt;/span&gt;
+  
+  &lt;/a&gt;
+    
+&lt;p&gt;NAPT在进行地址变换的时候不同的主机使用不同的端口，原先的NAT一台主机只能对应一个外部的IP，但是运用NAPT多台主机可以对应一个外部的IP，前提是这个外部IP的端口不被用完。（用到了端口，与运输层有一定关系）&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item></channel></rss>
