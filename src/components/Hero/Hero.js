@@ -13,7 +13,7 @@ const Hero = props => {
           This is a place to
         </h1>
         <h1>
-          record  whimsical ideas
+          record  marvellous ideas
         </h1>
         <h1>
           <strong>Bo Blog</strong> Welcome!
